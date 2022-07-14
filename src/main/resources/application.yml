@@ -1,0 +1,38 @@
+server:
+  port: 8080
+  host: localhost
+  contextPath: /api
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/management
+    username: root
+    password: passMQ5&
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true # Show SQL statements
+    hibernate:
+      ddl-auto: update # Update the database schema automatically
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true # Format SQL statements
+        hbn2dll:
+          auto: update # Update the database if it doesn't exist
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+application:
+  client:
+    endpoint:
+      method:
+        protocol: http
+        host: www.solutions.com
+        port: 8080
+        basePath: /endpoint/api/method
+        timeout:
+          connection: 300000
+          read: 300000
+        url: ${application.client.endpoint.method.protocol}://${application.client.endpoint.method.host}:${application.client.endpoint.method.port}${application.client.endpoint.method.basePath}
+
