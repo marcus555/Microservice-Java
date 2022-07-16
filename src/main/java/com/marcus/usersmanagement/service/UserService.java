@@ -6,7 +6,7 @@ import com.marcus.usersmanagement.model.dto.UserDTO;
 import com.marcus.usersmanagement.model.entity.User;
 import com.marcus.usersmanagement.model.repository.UserRepository;
 import com.marcus.usersmanagement.service.interfaces.IUserService;
-import com.marcus.usersmanagement.util.data.UserConverter;
+import com.marcus.usersmanagement.common.util.data.UserConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService {
@@ -57,6 +59,10 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getUserById(String id) {
         return userRepository.findById(id).map(this::convert2DTO).orElse(null);
+    }
+
+    public Optional<User> findByUsername(String username){
+        return userRepository.findByUsername(username);
     }
 
     /**

@@ -1,16 +1,29 @@
 package com.marcus.usersmanagement.model.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+@Table(indexes = {
+        @Index(name = "indexUser", columnList = "name"),
+        @Index(name = "uniqueIndexUsername", columnList = "username", unique = true)
+})
+public class User implements UserDetails {
 
     @NotEmpty(message = "El id es requerido")
     @Id
@@ -37,4 +50,60 @@ public class User {
     @PrimaryKeyJoinColumn
     private Photo photo;
 
+    // System Attribute
+    @CreatedDate
+//    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+//    @Column(name = "modifiedAt")
+    private LocalDateTime modifiedAt;
+
+    @Column(name = "enabled")
+    private boolean enabled = true;
+
+    @Column(name = "username", length=20)
+    private String username;
+
+    @Column(name = "password", length=36)
+    private String password;
+
+    @ElementCollection
+//    @Column(name = "authorities")
+    private Set<Role> authorities = new HashSet<>();
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return enabled;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return enabled;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return enabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

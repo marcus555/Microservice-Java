@@ -1,4 +1,4 @@
-package com.marcus.usersmanagement.config;
+package com.marcus.usersmanagement.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

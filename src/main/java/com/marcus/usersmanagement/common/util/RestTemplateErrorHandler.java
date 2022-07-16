@@ -1,4 +1,4 @@
-package com.marcus.usersmanagement.util;
+package com.marcus.usersmanagement.common.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

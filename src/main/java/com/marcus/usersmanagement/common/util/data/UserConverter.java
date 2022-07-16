@@ -1,4 +1,4 @@
-package com.marcus.usersmanagement.util.data;
+package com.marcus.usersmanagement.common.util.data;
 
 import com.marcus.usersmanagement.model.dto.UserDTO;
 import com.marcus.usersmanagement.model.entity.User;

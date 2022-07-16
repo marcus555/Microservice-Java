@@ -1,4 +1,4 @@
-package com.marcus.usersmanagement.config;
+package com.marcus.usersmanagement.common.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -1,6 +1,6 @@
 package com.marcus.usersmanagement.controller.interfaces;
 
-import com.marcus.usersmanagement.config.SwaggerConfig;
+import com.marcus.usersmanagement.common.config.SwaggerConfig;
 import com.marcus.usersmanagement.model.dto.PageRequestDTO;
 import com.marcus.usersmanagement.model.dto.PageResponseDTO;
 import com.marcus.usersmanagement.model.dto.UserDTO;
@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Api(tags = { SwaggerConfig.TAG_USER })
-@RequestMapping("/rest/v1/user")
+@RequestMapping("/api/v1/user")
 public interface IUserController {
     @GetMapping("/")
     @ApiOperation(value = "Obtener usuarios", notes = "Devuelve una lista de usuarios")

@@ -23,6 +23,12 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+jwt:
+  private:
+    key: classpath:rsa.private.key
+  public:
+    key: classpath:rsa.public.key
+
 application:
   client:
     endpoint:

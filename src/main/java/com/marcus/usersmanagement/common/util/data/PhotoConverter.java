@@ -1,4 +1,4 @@
-package com.marcus.usersmanagement.util.data;
+package com.marcus.usersmanagement.common.util.data;
 
 import com.marcus.usersmanagement.model.dto.PhotoDTO;
 import com.marcus.usersmanagement.model.entity.Photo;

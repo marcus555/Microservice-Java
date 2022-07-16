@@ -1,6 +1,6 @@
-package com.marcus.usersmanagement.config;
+package com.marcus.usersmanagement.common.config;
 
-import com.marcus.usersmanagement.util.RestTemplateErrorHandler;
+import com.marcus.usersmanagement.common.util.RestTemplateErrorHandler;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
