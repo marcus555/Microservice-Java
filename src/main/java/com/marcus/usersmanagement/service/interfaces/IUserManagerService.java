@@ -3,14 +3,12 @@ package com.marcus.usersmanagement.service.interfaces;
 import com.marcus.usersmanagement.model.business.dto.PageRequest;
 import com.marcus.usersmanagement.model.business.dto.PageResponse;
 import com.marcus.usersmanagement.model.business.dto.User;
-import com.marcus.usersmanagement.model.entity.RoleEntity;
-import com.marcus.usersmanagement.model.entity.UserEntity;
 
-import java.util.Set;
+public interface IUserManagerService {
 
-public interface IUserService {
-    PageResponse<User> getAllByRole(PageRequest pageRequest, Set<RoleEntity> roleEntities);
     User getUserById(String id);
+
+    PageResponse<User> getAllUsers(PageRequest pageRequest);
 
     User createUser(User user);
 
@@ -20,7 +18,4 @@ public interface IUserService {
 
     User deactivateUser(String id);
 
-    User convert2DTO(UserEntity userEntity);
-
-    UserEntity convert2Entity(User user);
 }

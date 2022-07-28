@@ -16,6 +16,8 @@ public class SwaggerConfig {
 
     public static final String TAG_USER = "User";
 
+    public static final String TAG_TOKEN = "Token";
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -23,6 +25,7 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.basePackage("com.marcus.usersmanagement.controller"))
                 .build()
                 .tags(new Tag(TAG_USER, "Operaciones sobre usuarios."))
+                .tags(new Tag(TAG_TOKEN, "Token de autenticación."))
                 // Other tags here...
                 .apiInfo(apiInfo())
                 .forCodeGeneration(true);

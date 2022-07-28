@@ -1,10 +1,15 @@
 package com.marcus.usersmanagement.model.repository;
 
-import com.marcus.usersmanagement.model.entity.Photo;
+import com.marcus.usersmanagement.model.entity.PhotoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface PhotoRepository extends JpaRepository<Photo, String> {
+import java.util.List;
 
+@Repository
+public interface PhotoRepository extends JpaRepository<PhotoEntity, String> {
+
+    List<PhotoEntity> findByUserId(String userId);
+
+    PhotoEntity findByUserIdAndActive(String userId, boolean active);
 }

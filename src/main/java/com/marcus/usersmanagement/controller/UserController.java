@@ -1,33 +1,29 @@
 package com.marcus.usersmanagement.controller;
 
 import com.marcus.usersmanagement.controller.interfaces.IUserController;
-import com.marcus.usersmanagement.model.dto.PageRequestDTO;
-import com.marcus.usersmanagement.model.dto.PageResponseDTO;
-import com.marcus.usersmanagement.model.dto.UserDTO;
-import com.marcus.usersmanagement.service.interfaces.IUserService;
+import com.marcus.usersmanagement.model.business.dto.*;
+import com.marcus.usersmanagement.service.interfaces.IUserManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "*")
 @RestController
 public class UserController implements IUserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    public IUserService userService;
+    public IUserManagerService userManagerService;
 
     /**
      * @param request Request to get the data on a pagination
      * @return PageResponseDTO<UserDTO>
      */
     @Override
-    public ResponseEntity<PageResponseDTO<UserDTO>> getUsers(PageRequestDTO request) {
-        LOGGER.info("--- Obteniendo usuarios ---");
-        PageResponseDTO<UserDTO> result = userService.getAll(request);
+    public ResponseEntity<PageResponse<User>> getUsers(PageRequest request) {
+        LOGGER.info("--- Paginación de usuarios---");
+        PageResponse<User> result = userManagerService.getAllUsers(request);
         return ResponseEntity.ok(result);
     }
 
@@ -36,9 +32,9 @@ public class UserController implements IUserController {
      * @return UserDTO
      */
     @Override
-    public ResponseEntity<UserDTO> getUser(String id) {
-        LOGGER.info("--- Obteniendo usuario por ID ---");
-        UserDTO result = userService.getUserById(id);
+    public ResponseEntity<User> getUser(String id) {
+        LOGGER.info("--- Obtención de usuario ---");
+        User result = userManagerService.getUserById(id);
         return ResponseEntity.ok(result);
     }
 
@@ -47,9 +43,9 @@ public class UserController implements IUserController {
      * @return UserDTO
      */
     @Override
-    public ResponseEntity<UserDTO> createUser(UserDTO request) {
-        LOGGER.info("--- Creando usuario ---");
-        UserDTO result = userService.createUser(request);
+    public ResponseEntity<User> createUser(User request) {
+        LOGGER.info("--- Creación de usuario ---");
+        User result = userManagerService.createUser(request);
         return ResponseEntity.ok(result);
     }
 
@@ -59,11 +55,11 @@ public class UserController implements IUserController {
      * @return UserDTO
      */
     @Override
-    public ResponseEntity<UserDTO> updateUser(String id, UserDTO request) {
-        LOGGER.info("--- Actualizando usuario por ID ---");
+    public ResponseEntity<User> updateUser(String id, User request) {
+        LOGGER.info("--- Actualización de usuario ---");
 
         if (id.equals(request.getId())) {
-            UserDTO result = userService.updateUser(id, request);
+            User result = userManagerService.updateUser(id, request);
             return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
@@ -72,13 +68,33 @@ public class UserController implements IUserController {
 
     /**
      * @param id User id
+     * @param request Request to update a userAccount
+     * @return String ("OK" or "ERROR")
+     */
+    @Override
+    public ResponseEntity<String> updateUserAccount(String id, UserAccountRequest request) {
+        return null;
+    }
+
+    /**
+     * @param id User id
+     * @param request Request to update a user credentials
+     * @return String ("OK" or "ERROR")
+     */
+    @Override
+    public ResponseEntity<String> updateUserCredentials(String id, CredentialChangueRequest request) {
+        return null;
+    }
+
+    /**
+     * @param id User id
      * @return UserDTO
      */
     @Override
-    public ResponseEntity<UserDTO> deleteUser(String id) {
-        LOGGER.info("--- Eliminando usuario por ID ---");
-        UserDTO result = userService.getUserById(id);
-        userService.deleteUser(id);
+    public ResponseEntity<User> deleteUser(String id) {
+        LOGGER.info("--- Eliminación de usuario ---");
+        User result = userManagerService.getUserById(id);
+        userManagerService.deleteUser(id);
         return ResponseEntity.ok(result);
     }
 }

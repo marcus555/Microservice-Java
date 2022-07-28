@@ -5,17 +5,20 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Entity
-@Table
 @Getter
 @Setter
 @NoArgsConstructor
-public class Photo {
+@Table(name = "photo")
+public class PhotoEntity implements Serializable {
+
+    private static final long serialVersionUID = 768559265386690595L;
 
     @NotEmpty(message = "El id de la foto es requerido")
     @Id
-    @Column(name = "user_id", length=36)
+    @Column(name = "id", length=36)
     private String id;
 
     @NotEmpty(message = "El nombre no puede estar vacío")
@@ -37,8 +40,10 @@ public class Photo {
     @Column(name = "path", length=1024)
     private String path;
 
-    @OneToOne
-    @MapsId
+    @Column(name = "active")
+    private boolean active;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity user;
 }

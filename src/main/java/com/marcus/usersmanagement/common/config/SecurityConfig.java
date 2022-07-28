@@ -1,26 +1,26 @@
 package com.marcus.usersmanagement.common.config;
 
-import com.marcus.usersmanagement.common.security.JwtTokenFilter;
-import com.marcus.usersmanagement.model.repository.UserRepository;
+import com.marcus.usersmanagement.service.UserAccountService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,11 +29,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -45,70 +43,66 @@ import static java.lang.String.format;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
-@RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtTokenFilter jwtTokenFilter;
+    UserAccountService userAccountService;
 
     @Value("${jwt.public.key}")
     private RSAPublicKey rsaPublicKey;
     @Value("${jwt.private.key}")
     private RSAPrivateKey rsaPrivateKey;
 
-    @Value("${springdoc.api-docs.path}")
-    private String restApiDocPath;
-    @Value("${springdoc.swagger-ui.path}")
-    private String swaggerPath;
+    private static final String[] AUTH_WHITELIST = {
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/webjars/**",
+            "/images/**",
+            "/js/**"
+    };
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(username -> userRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(format("User: %s, not found", username))))
-                .passwordEncoder(new BCryptPasswordEncoder());
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Enable CORS and disable CSRF
-        http.cors().and().csrf().disable();
+        http.cors().and().csrf(csrf -> csrf.ignoringAntMatchers("/api/v1/token/"));
 
         // Set session management to stateless
-        http
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and();
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Set unauthorized requests exception handler
         http
             .exceptionHandling(exceptions -> exceptions
                     .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+            );
 
         // Set permissions on endpoints
         http.authorizeRequests()
                 // Swagger endpoints must be publicly accessible
-                .antMatchers("/").permitAll()
-                .antMatchers(format("%s/**", restApiDocPath)).permitAll()
-                .antMatchers(format("%s/**", swaggerPath)).permitAll()
+                .antMatchers(format("%s/**", "/swagger-ui")).permitAll()
+                .antMatchers(format("%s/**", "/v2/api-docs")).permitAll()
                 // Our public endpoints
                 .antMatchers(HttpMethod.POST, "/api/v1/token/").permitAll()
+//                .antMatchers( "/login").permitAll()
+//                .antMatchers( "/logout").permitAll()
+                .antMatchers( "/").permitAll()
                 // Our private endpoints
-                .anyRequest().permitAll()
+                .anyRequest().authenticated().and()
+//                .formLogin()
+//                    .loginPage("/login").permitAll().and()
+//                    .logout().permitAll().and()
+                .exceptionHandling().accessDeniedPage("/403").and()
                 // Set up oauth2 resource server
-                .and().httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer()
-                .jwt();
+                .httpBasic(Customizer.withDefaults())
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+        return http.build();
+    }
 
-        // Add JWT token filter
-        http.addFilterBefore(
-                jwtTokenFilter,
-                UsernamePasswordAuthenticationFilter.class
-        );
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth)
+            throws Exception {
+        auth.userDetailsService(userAccountService).passwordEncoder(new BCryptPasswordEncoder());
     }
 
     // Used by JwtAuthenticationProvider to generate JWT tokens
@@ -123,18 +117,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(this.rsaPublicKey).build();
-    }
-
-    // Extract authorities from the roles claim
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
     }
 
     // Set password encoding schema
@@ -156,10 +138,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new CorsFilter(source);
     }
 
-    // Expose authentication manager bean
-    @Override
     @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().antMatchers(AUTH_WHITELIST);
     }
 }

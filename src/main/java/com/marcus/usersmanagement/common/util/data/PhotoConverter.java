@@ -1,13 +1,13 @@
 package com.marcus.usersmanagement.common.util.data;
 
-import com.marcus.usersmanagement.model.dto.PhotoDTO;
-import com.marcus.usersmanagement.model.entity.Photo;
+import com.marcus.usersmanagement.model.business.dto.Photo;
+import com.marcus.usersmanagement.model.entity.PhotoEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @Component
-public class PhotoConverter extends AbstractConverter<Photo, PhotoDTO> {
+public class PhotoConverter extends AbstractConverter<PhotoEntity, Photo> {
 
 
     /**
@@ -15,13 +15,15 @@ public class PhotoConverter extends AbstractConverter<Photo, PhotoDTO> {
      * @return Photo
      */
     @Override
-    public Photo dto2Entity(PhotoDTO dto) {
-        Photo result = new Photo();
+    public PhotoEntity dto2Entity(Photo dto) {
+        PhotoEntity result = new PhotoEntity();
+
         if (dto.getId() != null && !dto.getId().isEmpty()) {
             result.setId(dto.getId());
         } else {
             result.setId(UUID.randomUUID().toString());
         }
+
         result.setName(dto.getName());
         result.setContentType(dto.getContentType());
         result.setSize(dto.getSize());
@@ -29,6 +31,7 @@ public class PhotoConverter extends AbstractConverter<Photo, PhotoDTO> {
         if (dto.getPath() != null && !dto.getPath().isEmpty()) {
             result.setPath(dto.getPath());
         }
+        result.setActive(dto.isActive());
 
         return result;
     }
@@ -38,8 +41,9 @@ public class PhotoConverter extends AbstractConverter<Photo, PhotoDTO> {
      * @return PhotoDTO
      */
     @Override
-    public PhotoDTO entity2DTO(Photo entity) {
-        PhotoDTO result = new PhotoDTO();
+    public Photo entity2DTO(PhotoEntity entity) {
+        Photo result = new Photo();
+
         result.setId(entity.getId());
         result.setName(entity.getName());
         result.setContentType(entity.getContentType());
@@ -48,6 +52,7 @@ public class PhotoConverter extends AbstractConverter<Photo, PhotoDTO> {
         if (entity.getPath() != null && !entity.getPath().isEmpty()) {
             result.setPath(entity.getPath());
         }
+        result.setActive(entity.isActive());
 
         return result;
     }
