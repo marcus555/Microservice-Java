@@ -2,10 +2,7 @@ package com.marcus.usersmanagement.controller.interfaces;
 
 import com.marcus.usersmanagement.common.config.SwaggerConfig;
 import com.marcus.usersmanagement.model.business.dto.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 public interface IUserController {
     @GetMapping("/")
     @ApiOperation(value = "Obtener usuarios", notes = "Devuelve una lista de usuarios")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", dataTypeClass = String.class, example = "Bearer access_token")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = PageResponse.class),
             @ApiResponse(code = 400, message = "Bad request"), @ApiResponse(code = 400, message = "Bad request"),
@@ -29,6 +29,9 @@ public interface IUserController {
 
     @GetMapping("/{id}")
     @ApiOperation(value = "Obtener un usuario", notes = "Devuelve una respuesta del tipo UserDTO")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", dataTypeClass = String.class, example = "Bearer access_token")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = User.class),
             @ApiResponse(code = 400, message = "Bad request"), @ApiResponse(code = 400, message = "Bad request"),
@@ -42,6 +45,9 @@ public interface IUserController {
     @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PostMapping("/")
     @ApiOperation(value = "Crear un usuario", notes = "Devuelve una respuesta del tipo UserDTO")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", dataTypeClass = String.class, example = "Bearer access_token")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created", response = User.class),
             @ApiResponse(code = 400, message = "Bad request"), @ApiResponse(code = 400, message = "Bad request"),
@@ -51,9 +57,12 @@ public interface IUserController {
             @ApiResponse(code = 500, message = "Internal server error")})
     ResponseEntity<User> createUser(@RequestBody User request);
 
-    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN') or @authenticatedUserService.hasId(#id)")
     @PutMapping("/{id}")
     @ApiOperation(value = "Actualiza un usuario", notes = "Devuelve una respuesta del tipo UserDTO")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", dataTypeClass = String.class, example = "Bearer access_token")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = User.class),
             @ApiResponse(code = 400, message = "Bad request"), @ApiResponse(code = 400, message = "Bad request"),
@@ -64,8 +73,12 @@ public interface IUserController {
             @ApiResponse(code = 500, message = "Internal server error")})
     ResponseEntity<User> updateUser(@PathVariable("id") String id, @RequestBody User request);
 
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN') or @authenticatedUserService.hasId(#id)")
     @PutMapping("/account/{id}")
     @ApiOperation(value = "Actualiza cuenta de usuario (username/password)", notes = "Devuelve una respuesta del tipo UserDTO")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", dataTypeClass = String.class, example = "Bearer access_token")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 400, message = "Bad request"), @ApiResponse(code = 400, message = "Bad request"),
@@ -78,7 +91,10 @@ public interface IUserController {
 
     @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PutMapping("/credentials/{id}")
-    @ApiOperation(value = "Actualiza credenciales de usuario (Roles)", notes = "Devuelve una respuesta del tipo UserDTO")
+    @ApiOperation(value = "Actualiza credenciales de usuario (Roles)", notes = "Devuelve una respuesta de exito")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", dataTypeClass = String.class, example = "Bearer access_token")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 400, message = "Bad request"), @ApiResponse(code = 400, message = "Bad request"),
@@ -89,9 +105,12 @@ public interface IUserController {
             @ApiResponse(code = 500, message = "Internal server error")})
     ResponseEntity<String> updateUserCredentials(@PathVariable("id") String id, @RequestBody CredentialChangueRequest request);
 
-    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN') or @authenticatedUserService.hasId(#id)")
     @DeleteMapping("/{id}")
     @ApiOperation(value = "Elimina un usuario", notes = "Devuelve una respuesta del tipo UserResponse")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", dataTypeClass = String.class, example = "Bearer access_token")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = User.class),
             @ApiResponse(code = 400, message = "Bad request"), @ApiResponse(code = 400, message = "Bad request"),

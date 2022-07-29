@@ -1,6 +1,6 @@
 package com.marcus.usersmanagement.service;
 
-import com.marcus.usersmanagement.common.util.data.RoleConverter;
+import com.marcus.usersmanagement.common.util.data.converter.RoleConverter;
 import com.marcus.usersmanagement.model.business.Role;
 import com.marcus.usersmanagement.model.entity.RoleEntity;
 import com.marcus.usersmanagement.model.repository.RoleRepository;
@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
 
 /**

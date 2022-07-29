@@ -2,6 +2,7 @@ package com.marcus.usersmanagement.controller;
 
 import com.marcus.usersmanagement.controller.interfaces.IUserController;
 import com.marcus.usersmanagement.model.business.dto.*;
+import com.marcus.usersmanagement.service.AuthenticatedUserService;
 import com.marcus.usersmanagement.service.interfaces.IUserManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,9 @@ public class UserController implements IUserController {
 
     @Autowired
     public IUserManagerService userManagerService;
+
+    @Autowired
+    private AuthenticatedUserService authenticatedUserService;
 
     /**
      * @param request Request to get the data on a pagination

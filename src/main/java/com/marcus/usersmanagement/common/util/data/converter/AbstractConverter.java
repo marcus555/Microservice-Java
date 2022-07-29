@@ -1,4 +1,4 @@
-package com.marcus.usersmanagement.common.util.data;
+package com.marcus.usersmanagement.common.util.data.converter;
 
 import java.util.Collections;
 import java.util.List;

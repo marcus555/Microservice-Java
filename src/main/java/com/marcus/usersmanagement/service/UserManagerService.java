@@ -12,14 +12,9 @@ import com.marcus.usersmanagement.service.interfaces.IUserManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,31 +40,34 @@ public class UserManagerService implements IUserManagerService {
     @Autowired
     private UserAccountService userAccountService;
 
+    @Autowired
+    private AuthenticatedUserService authenticatedUserService;
+
     /**
      * @param id User id
-     * @return UserDTO
+     * @return User
      */
     @Override
     public User getUserById(String id) {
         LOGGER.info("--- Obteniendo usuario por ID ---");
-        return userService.getUserById(id);
+        User result = userService.getUserById(id);
+        Photo photo = photoService.getPhotoByUserId(id);
+        if (photo != null) {
+            result.setPhoto(photo);
+        }
+        return result;
     }
 
     /**
      * @param pageRequest Request to get the data on a pagination
-     * @return PageResponseDTO<UserDTO>
+     * @return PageResponse<User>
      */
     @Override
     public PageResponse<User> getAllUsers(PageRequest pageRequest) {
         LOGGER.info("--- Obteniendo usuarios ---");
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-
         Set<Role> roles = new HashSet<>();
-
-        String ROLE_PREFIX = "SCOPE_";
-        if (authorities.contains(new SimpleGrantedAuthority(ROLE_PREFIX + Role.ROLE_ADMIN))) {
+        if (authenticatedUserService.hasRole(Role.ROLE_ADMIN)) {
             roles.add(new Role(Role.ROLE_ADMIN));
         }
         roles.add(new Role(Role.ROLE_USER));
@@ -79,15 +77,16 @@ public class UserManagerService implements IUserManagerService {
     }
 
     /**
-     * @param user DTO of the user to save (by defaul with ROLE_USER)
-     * @return UserDTO
+     * @param user  of the user to save (by defaul with ROLE_USER)
+     * @return User
      */
     @Override
     public User createUser(User user) {
         LOGGER.info("--- Creando usuario ---");
 
-        UserEntity userEntity = userService.convert2Entity(user);
-        User result = userService.createUser(user);
+        UserEntity userEntity = userService.createUser(user);
+        User result = userService.convert2DTO(userEntity);
+        result.setAccount(userAccountService.convert2DTO(userEntity.getAccount()));
         if (user.getPhoto() != null) {
             Photo photo = photoService.createPhoto(user.getPhoto(), userEntity);
             result.setPhoto(photo);
@@ -96,8 +95,8 @@ public class UserManagerService implements IUserManagerService {
     }
 
     /**
-     * @param user DTO of the user to update
-     * @return UserDTO
+     * @param user  of the user to update
+     * @return User
      */
     @Override
     public User updateUser(String id, User user) {
@@ -113,15 +112,16 @@ public class UserManagerService implements IUserManagerService {
 
         if (user.getPhoto() != null) {
             if (user.getPhoto().getId() != null) {
-                photoService.deactivatePhoto(user.getId());
+                photoService.deactivatePhoto(id);
                 photo = photoService.updatePhoto(user.getPhoto().getId(), user.getPhoto());
                 result.setPhoto(photo);
             } else {
-                photoService.deactivatePhoto(user.getId());
+                photoService.deactivatePhoto(id);
                 photo = photoService.createPhoto(user.getPhoto(), userService.convert2Entity(user));
                 result.setPhoto(photo);
             }
         }
+        result.setPhoto(photoService.getPhotoByUserId(id));
 
         userAccount = userAccountService.getUserAccountById(id);
         if (user.getStatus() == 200 && !userAccount.isEnabled()){
@@ -131,11 +131,12 @@ public class UserManagerService implements IUserManagerService {
             userAccount.setEnabled(false);
             userAccountService.updateUserAccount(id, userAccount);
         }
+        result.setAccount(userAccount);
         return result;
     }
 
     /**
-     * @param id
+     * @param id User id to delete
      */
     @Override
     public void deleteUser(String id) {
@@ -144,8 +145,8 @@ public class UserManagerService implements IUserManagerService {
     }
 
     /**
-     * @param id
-     * @return
+     * @param id User id to activate
+     * @return User
      */
     @Override
     public User deactivateUser(String id) {

@@ -12,7 +12,7 @@ spring:
     password: passMQ5&
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: false # Show SQL statements
+    show-sql: true # Show SQL statements
     hibernate:
       ddl-auto: update # Validate the database schema automatically
     properties:
@@ -32,7 +32,7 @@ jwt:
 
 resources:
   image:
-    shepard-face: classpath:rsa.private.key
+    shepard-face: classpath:imgFaceShepard.txt
 
 application:
   client:
@@ -50,5 +50,5 @@ application:
 logging:
   level:
     root: info
-    org.springframework.web: trace
-    org.springframework.security: trace
+    org.springframework.web: info
+    org.springframework.security: info

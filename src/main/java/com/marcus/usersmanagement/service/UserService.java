@@ -1,6 +1,6 @@
 package com.marcus.usersmanagement.service;
 
-import com.marcus.usersmanagement.common.util.data.UserConverter;
+import com.marcus.usersmanagement.common.util.data.converter.UserConverter;
 import com.marcus.usersmanagement.model.business.Role;
 import com.marcus.usersmanagement.model.business.dto.PageRequest;
 import com.marcus.usersmanagement.model.business.dto.PageResponse;
@@ -101,17 +101,16 @@ public class UserService implements IUserService {
 
     /**
      * @param user DTO of the user to create (by defaul with ROLE_USER)
-     * @return User created
+     * @return UserEntity created
      */
     @Override
-    public User createUser(User user) {
+    public UserEntity createUser(User user) {
         try {
             UserEntity userEntity = convert2Entity(user);
             UserAccountEntity userAcc = createUserAccount(userEntity);
 
             userEntity.setAccount(userAcc);
-            UserEntity result = userRepository.saveAndFlush(userEntity);
-            return convert2DTO(result);
+            return userRepository.saveAndFlush(userEntity);
         } catch (Exception e) {
             LOGGER.error("Error al crear el usuario {}", user, e);
             return null;

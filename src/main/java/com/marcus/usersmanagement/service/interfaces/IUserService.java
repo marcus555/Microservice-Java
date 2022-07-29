@@ -12,7 +12,7 @@ public interface IUserService {
     PageResponse<User> getAllByRole(PageRequest pageRequest, Set<RoleEntity> roleEntities);
     User getUserById(String id);
 
-    User createUser(User user);
+    UserEntity createUser(User user);
 
     User updateUser(String id, User user);
 

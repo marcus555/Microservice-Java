@@ -1,6 +1,6 @@
 package com.marcus.usersmanagement.service;
 
-import com.marcus.usersmanagement.common.util.data.UserAccountConverter;
+import com.marcus.usersmanagement.common.util.data.converter.UserAccountConverter;
 import com.marcus.usersmanagement.model.business.UserAccount;
 import com.marcus.usersmanagement.model.entity.UserAccountEntity;
 import com.marcus.usersmanagement.model.repository.UserAccountRepository;
@@ -38,7 +38,7 @@ public class UserAccountService implements IUserAccountService, UserDetailsServi
     @Override
     public UserAccount findByUsername(String username) {
         try {
-            UserAccount result = userAccountRepository.findByUsername(username).map(this::convert2DTO).get();
+            UserAccount result = convert2DTO(userAccountRepository.findByUsername(username));
             result.setAuthorities();
             return result;
         } catch (Exception e) {
@@ -54,9 +54,14 @@ public class UserAccountService implements IUserAccountService, UserDetailsServi
     @Override
     public UserAccount getUserAccountById(String id) {
         try {
-            UserAccount result = userAccountRepository.findById(id).map(this::convert2DTO).get();
-            result.setAuthorities();
-            return result;
+            if (userAccountRepository.findById(id).isPresent()){
+                UserAccount result = userAccountRepository.findById(id).map(this::convert2DTO).orElse(null);
+                if (result != null) {
+                    result.setAuthorities();
+                }
+                return result;
+            }
+            return null;
         } catch (Exception e) {
             LOGGER.error("Error al obtener la cuenta de usuario por id: {}", id, e);
             return null;
@@ -119,8 +124,8 @@ public class UserAccountService implements IUserAccountService, UserDetailsServi
     }
 
     /**
-     * @param id
-     * @return
+     * @param id of the userAccount to be deactivated
+     * @return UserAccount deactivated
      */
     @Override
     public UserAccount deactivateUserAccount(String id) {
@@ -165,11 +170,10 @@ public class UserAccountService implements IUserAccountService, UserDetailsServi
     /**
      * @param username the username identifying the user whose data is required.
      * @return UserDetails for the user with the given username.
-     * @throws UsernameNotFoundException
+     * @throws UsernameNotFoundException if the user could not be found.
      */
     @Override
     public UserAccount loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserAccount user = findByUsername(username);
-        return user;
+        return findByUsername(username);
     }
 }

@@ -1,8 +1,7 @@
-package com.marcus.usersmanagement.common.util.data;
+package com.marcus.usersmanagement.common.util.data.converter;
 
 import com.marcus.usersmanagement.model.business.dto.User;
 import com.marcus.usersmanagement.model.entity.UserEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ public class UserConverter extends AbstractConverter<UserEntity, User> {
             result.setId(dto.getId());
         } else {
             result.setId(UUID.randomUUID().toString());
-            dto.getPhoto().setId(result.getId());
         }
 
         result.setName(dto.getName());

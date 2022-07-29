@@ -1,6 +1,6 @@
 package com.marcus.usersmanagement.service;
 
-import com.marcus.usersmanagement.common.util.data.PhotoConverter;
+import com.marcus.usersmanagement.common.util.data.converter.PhotoConverter;
 import com.marcus.usersmanagement.model.business.dto.Photo;
 import com.marcus.usersmanagement.model.entity.PhotoEntity;
 import com.marcus.usersmanagement.model.entity.UserEntity;
@@ -32,11 +32,26 @@ public class PhotoService implements IPhotoService {
     private PhotoConverter photoConverter;
 
     /**
-     * @param id
-     * @return
+     * @param id user id
+     * @return List of Photo from user id
      */
     @Override
     public List<Photo> getAll(String id) {
+        try {
+            List<PhotoEntity> result = photoRepository.findByUserId(id);
+            return convert2DTO(result);
+        } catch (Exception e) {
+            LOGGER.error("Error al obtener las fotos del usuario {}", id, e);
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * @param id User id
+     * @return List of Photo
+     */
+    @Override
+    public List<Photo> getAllByUserId(String id) {
         try {
             List<PhotoEntity> result = photoRepository.findByUserId(id);
             return convert2DTO(result);
@@ -56,6 +71,20 @@ public class PhotoService implements IPhotoService {
             return photoRepository.findById(id).map(this::convert2DTO).orElse(null);
         } catch (Exception e) {
             LOGGER.error("Error al obtener la foto con id {}", id, e);
+            return null;
+        }
+    }
+
+    /**
+     * @param id User id
+     * @return Photo
+     */
+    @Override
+    public Photo getPhotoByUserId(String id) {
+        try {
+            return convert2DTO(photoRepository.findByUserIdAndActive(id,true));
+        } catch (Exception e) {
+            LOGGER.error("Error al obtener la foto del usuario {}", id, e);
             return null;
         }
     }
@@ -110,7 +139,7 @@ public class PhotoService implements IPhotoService {
     }
 
     /**
-     * @param id 
+     * @param id ID of the photo to be deleted
      */
     @Override
     public void deletePhoto(String id) {
@@ -122,7 +151,7 @@ public class PhotoService implements IPhotoService {
     }
 
     @Override
-    public Photo deactivatePhoto(String id) {
+    public void deactivatePhoto(String id) {
         try {
             PhotoEntity result;
             PhotoEntity original;
@@ -130,24 +159,23 @@ public class PhotoService implements IPhotoService {
             original = photoRepository.findByUserIdAndActive(id,true);
             if (original == null) {
                 LOGGER.error("No se encontró la foto");
-                return null;
+                return;
             }
             if (!id.equals(original.getId())) {
                 LOGGER.error("El id de la foto no coincide id: {} original: {}", id, original.getId());
-                return null;
+                return;
             }
             original.setActive(false);
             result = photoRepository.saveAndFlush(original);
-            return convert2DTO(result);
+            convert2DTO(result);
         } catch (Exception e) {
             LOGGER.error("Error al desactivar la foto con id {}", id, e);
         }
-        return null;
     }
 
     /**
-     * @param photoEntity
-     * @return
+     * @param photoEntity The photo to convert
+     * @return The converted photo
      */
     @Override
     public Photo convert2DTO(PhotoEntity photoEntity) {
@@ -160,8 +188,8 @@ public class PhotoService implements IPhotoService {
     }
 
     /**
-     * @param photo
-     * @return
+     * @param photo The photo to convert
+     * @return The converted photo
      */
     @Override
     public PhotoEntity convert2Entity(Photo photo) {

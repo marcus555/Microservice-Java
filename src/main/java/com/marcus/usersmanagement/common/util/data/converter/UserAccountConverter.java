@@ -1,15 +1,9 @@
-package com.marcus.usersmanagement.common.util.data;
+package com.marcus.usersmanagement.common.util.data.converter;
 
-import com.marcus.usersmanagement.model.business.Role;
 import com.marcus.usersmanagement.model.business.UserAccount;
-import com.marcus.usersmanagement.model.entity.RoleEntity;
 import com.marcus.usersmanagement.model.entity.UserAccountEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 @Component
 public class UserAccountConverter extends AbstractConverter<UserAccountEntity, UserAccount> {

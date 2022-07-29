@@ -1,15 +1,16 @@
 package com.marcus.usersmanagement.startup;
 
-import com.marcus.usersmanagement.common.util.data.PhotoConverter;
-import com.marcus.usersmanagement.common.util.data.RoleConverter;
-import com.marcus.usersmanagement.common.util.data.UserConverter;
+import com.marcus.usersmanagement.common.util.data.ResourceReader;
+import com.marcus.usersmanagement.common.util.data.converter.PhotoConverter;
+import com.marcus.usersmanagement.common.util.data.converter.RoleConverter;
+import com.marcus.usersmanagement.common.util.data.converter.UserConverter;
 import com.marcus.usersmanagement.model.business.Role;
 import com.marcus.usersmanagement.model.business.dto.Photo;
 import com.marcus.usersmanagement.model.business.dto.User;
 import com.marcus.usersmanagement.model.entity.PhotoEntity;
 import com.marcus.usersmanagement.model.entity.RoleEntity;
-import com.marcus.usersmanagement.model.entity.UserEntity;
 import com.marcus.usersmanagement.model.entity.UserAccountEntity;
+import com.marcus.usersmanagement.model.entity.UserEntity;
 import com.marcus.usersmanagement.model.repository.PhotoRepository;
 import com.marcus.usersmanagement.model.repository.RoleRepository;
 import com.marcus.usersmanagement.model.repository.UserRepository;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +38,7 @@ public class DatabaseInitializer implements ApplicationRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseInitializer.class);
 
     @Value("${resources.image.shepard-face}")
-    private String imgFace;
+    private Resource imgFace;
 
     @Autowired
     PasswordEncoder encoder;
@@ -82,8 +84,11 @@ public class DatabaseInitializer implements ApplicationRunner {
                 photoEntity.setUser(userEntity);
                 photoRepository.saveAndFlush(photoEntity);
                 LOGGER.info("Usuario: {}", userEntity.getAccount().getUsername());
-                LOGGER.info("Contraseña: {}", userEntity.getAccount().getPassword());
-                LOGGER.info("Roles: {}", userEntity.getAccount().getRoles());
+                String passTmp = userEntity.getName().toLowerCase() + "123";
+                LOGGER.info("Contraseña original: {}", passTmp);
+                LOGGER.info("Contraseña codificada: {}", userEntity.getAccount().getPassword());
+                String rolTmp = Role.toString(roleConverter.entity2DTO(userEntity.getAccount().getRoles()));
+                LOGGER.info("Roles: {}", rolTmp);
             }
         }
     }
@@ -102,7 +107,7 @@ public class DatabaseInitializer implements ApplicationRunner {
         user.setName("Marcos");
         user.setLastName("Machorro");
         user.setEmail(new ArrayList<>(Arrays.asList("admin@mail.com","user@mail.com")));
-        user.setGender("male");
+        user.setGender("Male");
         user.setPhoto(getInitPhoto());
         user.setStatus(200);
         usersDto.add(user);
@@ -112,11 +117,12 @@ public class DatabaseInitializer implements ApplicationRunner {
 
     private Photo getInitPhoto(){
         Photo photo = new Photo();
+        String face = ResourceReader.asString(imgFace);
 
         photo.setName("shepard.jpg");
         photo.setContentType("image/jpeg");
         photo.setSize(47650);
-        photo.setData(imgFace);
+        photo.setData(face);
         photo.setPath("");
 
         return photo;

@@ -37,9 +37,9 @@ public class Photo implements Serializable {
     @ApiModelProperty(notes = "path of the file", example = "https://s3.amazonaws.com/marcus-users-management/photo.jpg")
     private String path;
 
-    @ApiModelProperty(notes = "user which the photo belongs", example = "BFD73385-CD97-43AA-8779-FF5874322A12")
-    private String userID;
-
     @ApiModelProperty(notes = "denotes if the current image will be the active one", example = "true")
     private boolean active;
+
+    @ApiModelProperty(notes = "user which the photo belongs", example = "BFD73385-CD97-43AA-8779-FF5874322A12")
+    private User user;
 }

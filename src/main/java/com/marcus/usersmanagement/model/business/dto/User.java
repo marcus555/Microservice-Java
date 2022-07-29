@@ -1,5 +1,6 @@
 package com.marcus.usersmanagement.model.business.dto;
 
+import com.marcus.usersmanagement.model.business.UserAccount;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,9 @@ public class User implements Serializable {
     @ApiModelProperty(notes = "status", example = "200")
     private int status;
 
-    @ApiModelProperty(notes = "photo", example = "BFD73385-CD97-43AA-8779-FF5874322A12")
+    @ApiModelProperty(notes = "photos")
     private Photo photo;
+
+    @ApiModelProperty(notes = "user account")
+    private UserAccount account;
 }

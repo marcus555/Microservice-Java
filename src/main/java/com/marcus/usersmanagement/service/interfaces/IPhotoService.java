@@ -8,7 +8,12 @@ import java.util.List;
 
 public interface IPhotoService {
     List<Photo> getAll(String id);
+
+    List<Photo> getAllByUserId(String id);
+
     Photo getPhotoById(String id);
+
+    Photo getPhotoByUserId(String id);
 
     Photo createPhoto(Photo photo, UserEntity userEntity);
 
@@ -22,5 +27,5 @@ public interface IPhotoService {
 
     PhotoEntity convert2Entity(Photo photo);
 
-    Photo deactivatePhoto(String id);
+    void deactivatePhoto(String id);
 }
